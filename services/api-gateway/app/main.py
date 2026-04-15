@@ -14,3 +14,11 @@ app = FastAPI(
 def health() -> dict[str, str]:
     return {"service": SERVICE_NAME, "status": "ok"}
 
+
+@app.get("/api/v1/status")
+def api_status() -> dict[str, str]:
+    return {
+        "service": SERVICE_NAME,
+        "status": "ok",
+        "api_version": "v1",
+    }

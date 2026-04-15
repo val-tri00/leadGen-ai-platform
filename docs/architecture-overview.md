@@ -18,7 +18,14 @@ LeadGen AI is organized as a service-oriented monorepo. The current foundation f
 
 Docker Compose creates a shared `leadgen` bridge network. Services communicate with each other using Compose service names such as `postgres`, `redis`, `identity-service`, and `leadgen-service`.
 
+## Local Request Flow
+
+NGINX is the public entrypoint for the local MVP environment. It exposes one host port and forwards browser traffic to the correct container by using internal Docker service names instead of container-local `localhost` assumptions.
+
+Requests to `/` are proxied to the `web` service, which runs the Next.js frontend. Requests to `/api/` are proxied to the `api-gateway` service, which owns the public backend API surface for the MVP. The gateway currently exposes `GET /health` for internal container health checks and `GET /api/v1/status` as a placeholder versioned API route.
+
+The API Gateway sits in front of the internal services so the frontend and nginx do not need to know about each backend service directly. Future routing, authentication, request validation, and service orchestration can be added at the gateway without changing the public local entrypoint.
+
 ## Current Scope
 
 This milestone provides only project scaffolding and health endpoints. Business logic, persistence models, background jobs, authentication flows, and AI integrations are intentionally deferred.
-
