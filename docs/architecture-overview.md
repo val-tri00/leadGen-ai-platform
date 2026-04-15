@@ -26,6 +26,14 @@ Requests to `/` are proxied to the `web` service, which runs the Next.js fronten
 
 The API Gateway sits in front of the internal services so the frontend and nginx do not need to know about each backend service directly. Future routing, authentication, request validation, and service orchestration can be added at the gateway without changing the public local entrypoint.
 
+## Identity And Auth
+
+Authentication is isolated in `identity-service` so user credentials, password hashing, token issuance, and session revocation stay behind a focused service boundary. This keeps the API Gateway ready to coordinate requests later without owning sensitive identity persistence directly.
+
+Refresh tokens are persisted in PostgreSQL using a token JTI so sessions can be revoked safely during logout and later security workflows. Access tokens remain short lived, while refresh tokens provide controlled continuity without storing password material.
+
+JWTs and a small RBAC foundation were chosen for the MVP because they keep service-to-service integration simple while still carrying user identity, token type, and role claims. The current roles are `user` and `admin`; admin-only behavior is intentionally deferred.
+
 ## Current Scope
 
-This milestone provides only project scaffolding and health endpoints. Business logic, persistence models, background jobs, authentication flows, and AI integrations are intentionally deferred.
+The current milestone adds the identity foundation with local PostgreSQL persistence, password hashing, JWT issuance, and refresh token revocation. Broader product workflows, background jobs, AI integrations, email verification, OAuth providers, and gateway-level auth enforcement are intentionally deferred.

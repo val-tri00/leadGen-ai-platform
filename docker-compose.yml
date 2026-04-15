@@ -59,9 +59,16 @@ services:
         SERVICE_PATH: services/identity-service
     environment:
       SERVICE_NAME: identity-service
-      DATABASE_URL: postgresql://leadgen:leadgen_password@postgres:5432/leadgen
+      IDENTITY_DATABASE_URL: postgresql+psycopg://leadgen:leadgen_password@postgres:5432/leadgen
       REDIS_URL: redis://redis:6379/0
-      JWT_SECRET: replace-with-a-strong-secret
+      JWT_ACCESS_SECRET: replace-with-a-strong-access-secret
+      JWT_REFRESH_SECRET: replace-with-a-strong-refresh-secret
+      JWT_ACCESS_EXPIRES_MINUTES: 30
+      JWT_REFRESH_EXPIRES_DAYS: 7
+      BOOTSTRAP_ADMIN_EMAIL: ""
+      BOOTSTRAP_ADMIN_PASSWORD: ""
+      BOOTSTRAP_ADMIN_NAME: ""
+    command: ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
     ports:
       - "8001:8000"
     depends_on:
