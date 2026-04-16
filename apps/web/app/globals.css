@@ -1,11 +1,18 @@
 :root {
-  color-scheme: light;
-  --background: #f4f6f8;
-  --foreground: #171717;
-  --muted: #5d6470;
-  --accent: #1f7a5a;
-  --panel: #ffffff;
-  --border: #d9ded8;
+  color-scheme: dark;
+  --background: #090a0a;
+  --foreground: #e9e5df;
+  --muted: #9a9a96;
+  --muted-strong: #c8c3bc;
+  --accent: #ff6b1a;
+  --accent-strong: #ff7a24;
+  --danger: #ff6a5f;
+  --panel: #141515;
+  --panel-strong: #191a1a;
+  --border: #2b2c2c;
+  --success-bg: #102018;
+  --danger-bg: #251312;
+  --loading-bg: #211a0d;
 }
 
 * {
@@ -26,13 +33,65 @@ body {
     sans-serif;
 }
 
+::selection {
+  background: var(--accent);
+  color: #090a0a;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.nav {
+  align-items: center;
+  background: #080909;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: space-between;
+  padding: 16px 24px;
+}
+
+.brand {
+  color: var(--foreground);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.nav-links a,
+.auth-pill {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted-strong);
+  font-size: 14px;
+  padding: 8px 10px;
+}
+
+.auth-authenticated {
+  background: var(--success-bg);
+  color: var(--accent-strong);
+}
+
 .page {
   display: grid;
-  gap: 48px;
+  gap: 32px;
   margin: 0 auto;
   max-width: 1120px;
-  min-height: 100vh;
-  padding: 72px 24px;
+  min-height: calc(100vh - 70px);
+  padding: 48px 24px;
+}
+
+.compact-page {
+  align-content: start;
+  max-width: 860px;
 }
 
 .intro {
@@ -62,6 +121,65 @@ h1 {
   max-width: 680px;
 }
 
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.button-link,
+button {
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  color: #090a0a;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  min-height: 44px;
+  padding: 11px 16px;
+}
+
+.button-link.secondary {
+  background: transparent;
+  color: var(--accent-strong);
+}
+
+.button-link:hover,
+button:hover {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+}
+
+.button-link.secondary:hover {
+  background: #1c120b;
+  color: var(--foreground);
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.text-link {
+  color: var(--accent-strong);
+  font-weight: 700;
+  width: fit-content;
+}
+
+.panel,
+.section-heading {
+  display: grid;
+  gap: 16px;
+}
+
+.section-heading h2 {
+  font-size: 28px;
+  line-height: 1.1;
+  margin: 0;
+}
+
 .service-list {
   display: grid;
   gap: 16px;
@@ -78,14 +196,97 @@ h1 {
   padding: 20px;
 }
 
+.panel-card,
+.status-box,
+.form-panel {
+  background: var(--panel-strong);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  padding: 20px;
+}
+
+.panel-card span,
+.status-box span,
 .service-card span {
   color: var(--muted);
   font-size: 14px;
 }
 
+.panel-card strong,
+.status-box strong,
 .service-card strong {
   align-self: end;
   font-size: 18px;
+}
+
+.panel-card p,
+.status-box p {
+  color: var(--muted);
+  line-height: 1.45;
+  margin: 0;
+}
+
+.dashboard-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.form-panel {
+  max-width: 560px;
+}
+
+label {
+  color: var(--muted-strong);
+  display: grid;
+  font-size: 14px;
+  font-weight: 700;
+  gap: 8px;
+}
+
+input {
+  background: #0e0f0f;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--foreground);
+  font: inherit;
+  min-height: 44px;
+  padding: 10px 12px;
+}
+
+input:focus {
+  border-color: var(--accent);
+  outline: 2px solid #5f2c12;
+}
+
+.result-box {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  line-height: 1.45;
+  min-height: 48px;
+  padding: 12px;
+}
+
+.result-success,
+.status-authenticated {
+  background: var(--success-bg);
+  border-color: #24583d;
+}
+
+.result-error,
+.status-unauthenticated {
+  background: var(--danger-bg);
+  border-color: #7c2b27;
+  color: var(--danger);
+}
+
+.result-loading,
+.status-loading {
+  background: var(--loading-bg);
+  border-color: #6b461a;
 }
 
 @media (min-width: 760px) {

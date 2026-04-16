@@ -34,6 +34,14 @@ Refresh tokens are persisted in PostgreSQL using a token JTI so sessions can be 
 
 JWTs and a small RBAC foundation were chosen for the MVP because they keep service-to-service integration simple while still carrying user identity, token type, and role claims. The current roles are `user` and `admin`; admin-only behavior is intentionally deferred.
 
+## Frontend Auth Flow
+
+The web app sends auth requests through relative `/api/auth/...` paths so browser traffic enters through NGINX and the API Gateway before reaching `identity-service`. This keeps backend service locations out of frontend code and preserves one public request flow for local development.
+
+Auth state is intentionally lightweight in the MVP. The web app uses a React context, a small API client, and a centralized session storage helper for access and refresh tokens. This is practical for local browser testing while keeping token handling isolated for a later migration.
+
+The `/dashboard` route is protected with a client-side guard. On app load, the auth provider restores a stored session, calls `/api/auth/me`, attempts refresh when needed, and clears invalid sessions before redirecting unauthenticated users to `/login`. In a production hardening pass, this flow can move refresh tokens into HttpOnly cookies and shift more enforcement to middleware/server-side boundaries.
+
 ## Current Scope
 
 The current milestone adds the identity foundation with local PostgreSQL persistence, password hashing, JWT issuance, and refresh token revocation. Broader product workflows, background jobs, AI integrations, email verification, OAuth providers, and gateway-level auth enforcement are intentionally deferred.

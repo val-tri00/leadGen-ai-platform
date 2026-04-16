@@ -1,30 +1,37 @@
-const services = [
-  "api-gateway",
-  "identity-service",
-  "leadgen-service",
-  "pipeline-worker",
-  "leadstore-service"
-];
+import Link from "next/link";
 
 export default function Home() {
   return (
     <main className="page">
       <section className="intro">
         <p className="eyebrow">LeadGen AI</p>
-        <h1>Portfolio foundation for AI-assisted lead generation.</h1>
+        <h1>Auth shell for the local MVP.</h1>
         <p className="lede">
-          The monorepo is ready for service boundaries, local containers, and
-          incremental MVP development.
+          Use the login, register, and dashboard routes to verify browser-to-gateway-to-identity auth flow.
         </p>
+        <div className="action-row">
+          <Link className="button-link" href="/login">
+            Login
+          </Link>
+          <Link className="button-link secondary" href="/register">
+            Register
+          </Link>
+        </div>
       </section>
 
       <section className="service-list" aria-label="Current MVP services">
-        {services.map((service) => (
-          <article className="service-card" key={service}>
-            <span>{service}</span>
-            <strong>healthy placeholder</strong>
-          </article>
-        ))}
+        <article className="service-card">
+          <span>Gateway routing</span>
+          <strong>/api/auth/*</strong>
+        </article>
+        <article className="service-card">
+          <span>Session storage</span>
+          <strong>local MVP layer</strong>
+        </article>
+        <article className="service-card">
+          <span>Protected route</span>
+          <strong>/dashboard</strong>
+        </article>
       </section>
     </main>
   );

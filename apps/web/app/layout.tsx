@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { Navigation } from "./components/navigation";
 import "./globals.css";
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: "LeadGen AI",
@@ -13,8 +15,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <Providers>
+          <Navigation />
+          {children}
+        </Providers>
+      </body>
     </html>
   );
 }
-

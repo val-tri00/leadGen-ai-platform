@@ -11,5 +11,4 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 EXPOSE 3000
 
-CMD ["npm", "run", "dev", "--", "--hostname", "0.0.0.0"]
-
+CMD ["sh", "-c", "rm -rf .next && npm run dev -- --hostname 0.0.0.0"]
