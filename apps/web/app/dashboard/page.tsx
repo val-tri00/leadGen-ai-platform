@@ -1,10 +1,16 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { ProtectedRoute } from "../components/protected-route";
 import { useAuth } from "../auth/auth-provider";
 
-const dashboardLinks = ["Generate Leads", "Lead Board", "Billing", "Settings"];
+const dashboardLinks = [
+  { label: "Generate Leads", href: "/generate", status: "Create a run" },
+  { label: "Runs / Lead Board", href: "/runs", status: "View timeline" },
+  { label: "Billing", href: "#", status: "Placeholder" },
+  { label: "Settings", href: "#", status: "Placeholder" }
+];
 
 export default function DashboardPage() {
   return (
@@ -53,9 +59,14 @@ function DashboardContent() {
         </div>
         <div className="service-list">
           {dashboardLinks.map((item) => (
-            <article className="service-card" key={item}>
-              <span>{item}</span>
-              <strong>Placeholder</strong>
+            <article className="service-card" key={item.label}>
+              <span>{item.label}</span>
+              <strong>{item.status}</strong>
+              {item.href === "#" ? null : (
+                <Link className="text-link" href={item.href}>
+                  Open
+                </Link>
+              )}
             </article>
           ))}
         </div>
@@ -69,4 +80,3 @@ function DashboardContent() {
     </main>
   );
 }
-

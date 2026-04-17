@@ -52,6 +52,24 @@ The current implementation prepares the async pipeline flow without performing r
 
 For auth compatibility, `leadgen-service` reads user context from gateway-style headers such as `X-User-Id`, `X-User-Email`, and `X-User-Role`. Local development can use a controlled mock user fallback; production-like environments should disable that fallback and let the API Gateway provide verified identity context.
 
+## Lead Generation UI
+
+Authenticated users create runs from the web app at `/generate`. The form submits generation criteria through the gateway-relative `/api/runs` route, including the current MVP user context headers so `leadgen-service` can associate the run with the signed-in user while gateway-level auth enforcement is still evolving.
+
+The `/runs` page lists available runs newest first, and `/runs/{runId}` shows the run summary plus the persisted event timeline. The timeline reflects backend orchestration events stored by `leadgen-service`, including creation, queueing, pipeline updates, and failure messages when available.
+
+Run details currently use lightweight polling every few seconds and stop once the run reaches a terminal status such as `done` or `failed`. This gives local MVP users a visible browser flow from run submission to backend status updates without adding realtime infrastructure yet.
+
+## Async Pipeline Orchestration
+
+Run processing is asynchronous. After `leadgen-service` persists a run and moves it to `queued`, it publishes a Celery task named `pipeline.process_run` to the `pipeline.run` Redis-backed queue. The task payload includes the run ID, user identity context, correlation ID, enqueue timestamp, and a compact summary of the generation input.
+
+`pipeline-worker` consumes the `pipeline.run` queue and simulates the future processing lifecycle in deterministic order: `crawling`, `cleaning`, `embedding`, `extracting`, `storing`, `verifying`, and `done`. Each step sends an internal callback to `leadgen-service` with `PATCH /runs/{run_id}/status` using Docker service DNS (`http://leadgen-service:8000`) rather than host-local addresses.
+
+Callback-based updates keep `leadgen-service` as the run owner while allowing the worker to execute slow processing independently. Every accepted callback creates a run event, so querying `/runs/{run_id}/events` shows the visible timeline from creation through completion. The worker can simulate local failure with `PIPELINE_SIMULATE_FAIL_STEP`, which reports `failed` and records the failed step in event metadata.
+
+`pipeline-worker` now runs as a Celery worker instead of an HTTP API. Its Docker readiness check uses Celery inspect against Redis, while `leadgen-service` keeps the HTTP health endpoint and depends on Redis for publishing queue messages.
+
 ## Current Scope
 
-The current milestone adds the identity foundation, frontend auth shell, and lead generation run foundation. Broader product workflows, background jobs, AI integrations, email verification, OAuth providers, pgvector storage, billing provider integration, and gateway-level auth enforcement are intentionally deferred.
+The current milestone adds the identity foundation, frontend auth shell, lead generation run foundation, placeholder async pipeline orchestration, and lead generation run UI. Broader product workflows, real crawling, R2 raw content, chunking, embeddings, lead extraction, lead storage, email verification, OAuth providers, pgvector storage, billing provider integration, and gateway-level auth enforcement are intentionally deferred.
