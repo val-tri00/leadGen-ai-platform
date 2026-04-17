@@ -93,11 +93,19 @@ services:
         SERVICE_PATH: services/leadgen-service
     environment:
       SERVICE_NAME: leadgen-service
+      ENVIRONMENT: local
       DATABASE_URL: postgresql://leadgen:leadgen_password@postgres:5432/leadgen
+      LEADGEN_DATABASE_URL: postgresql+psycopg://leadgen:leadgen_password@postgres:5432/leadgen
       REDIS_URL: redis://redis:6379/0
+      LEADGEN_ALLOW_MOCK_USER: "true"
+      LEADGEN_MOCK_USER_ID: 00000000-0000-4000-8000-000000000001
+      LEADGEN_MOCK_USER_EMAIL: mvp-user@example.com
+      LEADGEN_MOCK_USER_ROLE: user
+      LEADGEN_CREDIT_UNITS_PER_LEAD: 1
       OPENAI_API_KEY: replace-with-openai-key
       FIRECRAWL_API_KEY: replace-with-firecrawl-key
       OLLAMA_BASE_URL: http://ollama:11434
+    command: ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
     ports:
       - "8002:8000"
     depends_on:
