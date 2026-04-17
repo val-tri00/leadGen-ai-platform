@@ -7,7 +7,9 @@ const publicLinks = [
   { href: "/", label: "Home" },
   { href: "/login", label: "Login" },
   { href: "/register", label: "Register" },
-  { href: "/dashboard", label: "Dashboard" }
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/generate", label: "Generate" },
+  { href: "/runs", label: "Runs" }
 ];
 
 export function Navigation() {
@@ -31,4 +33,3 @@ export function Navigation() {
     </nav>
   );
 }
-
