@@ -12,6 +12,10 @@ class Settings(BaseSettings):
     environment: str = Field(default="local", alias="ENVIRONMENT")
     database_url: str = Field(alias="LEADGEN_DATABASE_URL")
     redis_url: str = Field(default="redis://redis:6379/0", alias="REDIS_URL")
+    celery_broker_url: str = Field(default="redis://redis:6379/1", alias="CELERY_BROKER_URL")
+    celery_result_backend: str = Field(default="redis://redis:6379/2", alias="CELERY_RESULT_BACKEND")
+    pipeline_run_queue: str = Field(default="pipeline.run", alias="PIPELINE_RUN_QUEUE")
+    pipeline_run_task_name: str = Field(default="pipeline.process_run", alias="PIPELINE_RUN_TASK_NAME")
     allow_mock_user: bool = Field(default=True, alias="LEADGEN_ALLOW_MOCK_USER")
     mock_user_id: UUID = Field(
         default=UUID("00000000-0000-4000-8000-000000000001"),

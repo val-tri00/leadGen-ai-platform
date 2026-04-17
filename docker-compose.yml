@@ -97,6 +97,10 @@ services:
       DATABASE_URL: postgresql://leadgen:leadgen_password@postgres:5432/leadgen
       LEADGEN_DATABASE_URL: postgresql+psycopg://leadgen:leadgen_password@postgres:5432/leadgen
       REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      PIPELINE_RUN_QUEUE: pipeline.run
+      PIPELINE_RUN_TASK_NAME: pipeline.process_run
       LEADGEN_ALLOW_MOCK_USER: "true"
       LEADGEN_MOCK_USER_ID: 00000000-0000-4000-8000-000000000001
       LEADGEN_MOCK_USER_EMAIL: mvp-user@example.com
@@ -132,10 +136,15 @@ services:
       SERVICE_NAME: pipeline-worker
       DATABASE_URL: postgresql://leadgen:leadgen_password@postgres:5432/leadgen
       REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      PIPELINE_RUN_QUEUE: pipeline.run
+      PIPELINE_RUN_TASK_NAME: pipeline.process_run
+      PIPELINE_STEP_DELAY_SECONDS: 0.25
+      PIPELINE_SIMULATE_FAIL_STEP: ""
       LEADGEN_SERVICE_URL: http://leadgen-service:8000
       LEADSTORE_SERVICE_URL: http://leadstore-service:8000
-    ports:
-      - "8003:8000"
+    command: ["celery", "-A", "app.celery_app:celery_app", "worker", "--loglevel=INFO", "--queues=pipeline.run", "--hostname=pipeline-worker@%h"]
     depends_on:
       postgres:
         condition: service_healthy
@@ -146,11 +155,11 @@ services:
       leadstore-service:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health').read()"]
+      test: ["CMD-SHELL", "celery -A app.celery_app:celery_app inspect ping --timeout=8 | grep -q pong"]
       interval: 10s
-      timeout: 5s
+      timeout: 12s
       retries: 5
-      start_period: 10s
+      start_period: 30s
     networks:
       - leadgen
 
