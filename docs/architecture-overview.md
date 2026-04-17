@@ -42,6 +42,16 @@ Auth state is intentionally lightweight in the MVP. The web app uses a React con
 
 The `/dashboard` route is protected with a client-side guard. On app load, the auth provider restores a stored session, calls `/api/auth/me`, attempts refresh when needed, and clears invalid sessions before redirecting unauthenticated users to `/login`. In a production hardening pass, this flow can move refresh tokens into HttpOnly cookies and shift more enforcement to middleware/server-side boundaries.
 
+## Lead Generation Runs
+
+`leadgen-service` owns the lead generation run domain. A run represents one user-submitted generation request with explicit criteria such as industry, offering, location, search query, and requested lead count. Keeping run creation and lifecycle state in this service gives the MVP one clear owner for orchestration decisions while downstream services can later report progress or results.
+
+Run events are persisted in a separate timeline table so every lifecycle step is traceable. This gives operators and future UI screens a simple way to inspect what happened during a run, including queue preparation, pipeline progress, failures, and debug metadata.
+
+The current implementation prepares the async pipeline flow without performing real crawling, LLM calls, lead extraction, or storage. Run creation reserves placeholder credits, writes initial events, transitions the run into `queued`, and executes a lightweight enqueue hook that can later be replaced by Redis/Celery-style background orchestration.
+
+For auth compatibility, `leadgen-service` reads user context from gateway-style headers such as `X-User-Id`, `X-User-Email`, and `X-User-Role`. Local development can use a controlled mock user fallback; production-like environments should disable that fallback and let the API Gateway provide verified identity context.
+
 ## Current Scope
 
-The current milestone adds the identity foundation with local PostgreSQL persistence, password hashing, JWT issuance, and refresh token revocation. Broader product workflows, background jobs, AI integrations, email verification, OAuth providers, and gateway-level auth enforcement are intentionally deferred.
+The current milestone adds the identity foundation, frontend auth shell, and lead generation run foundation. Broader product workflows, background jobs, AI integrations, email verification, OAuth providers, pgvector storage, billing provider integration, and gateway-level auth enforcement are intentionally deferred.
