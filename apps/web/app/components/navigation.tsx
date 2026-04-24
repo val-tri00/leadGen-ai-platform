@@ -9,7 +9,8 @@ const publicLinks = [
   { href: "/register", label: "Register" },
   { href: "/dashboard", label: "Dashboard" },
   { href: "/generate", label: "Generate" },
-  { href: "/runs", label: "Runs" }
+  { href: "/runs", label: "Runs" },
+  { href: "/lead-board", label: "Lead Board" }
 ];
 
 export function Navigation() {

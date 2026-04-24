@@ -447,6 +447,57 @@ textarea:focus {
   border-color: #6b461a;
 }
 
+.lead-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.lead-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+}
+
+.lead-card-header,
+.lead-card-footer {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.lead-card-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.lead-card span,
+.lead-score span,
+.lead-card-grid span,
+.lead-card-footer span {
+  color: var(--muted);
+  display: block;
+  font-size: 13px;
+}
+
+.lead-card strong,
+.lead-score strong,
+.lead-card-grid strong,
+.lead-card-footer strong {
+  display: block;
+  margin-top: 4px;
+}
+
+.lead-score {
+  min-width: 96px;
+}
+
 @media (min-width: 760px) {
   h1 {
     font-size: 72px;

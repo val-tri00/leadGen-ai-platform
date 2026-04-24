@@ -11,6 +11,7 @@ celery_app = Celery(
 
 celery_app.conf.update(
     accept_content=["json"],
+    broker_connection_retry_on_startup=True,
     result_serializer="json",
     task_default_queue=settings.pipeline_run_queue,
     task_routes={

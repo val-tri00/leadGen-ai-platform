@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     pipeline_run_queue: str = Field(default="pipeline.run", alias="PIPELINE_RUN_QUEUE")
     pipeline_run_task_name: str = Field(default="pipeline.process_run", alias="PIPELINE_RUN_TASK_NAME")
     leadgen_service_url: str = Field(default="http://leadgen-service:8000", alias="LEADGEN_SERVICE_URL")
+    leadstore_service_url: str = Field(default="http://leadstore-service:8000", alias="LEADSTORE_SERVICE_URL")
     pipeline_step_delay_seconds: float = Field(default=0.25, alias="PIPELINE_STEP_DELAY_SECONDS")
     pipeline_simulate_fail_step: str | None = Field(default=None, alias="PIPELINE_SIMULATE_FAIL_STEP")
 

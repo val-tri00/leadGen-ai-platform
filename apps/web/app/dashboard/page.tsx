@@ -7,7 +7,8 @@ import { useAuth } from "../auth/auth-provider";
 
 const dashboardLinks = [
   { label: "Generate Leads", href: "/generate", status: "Create a run" },
-  { label: "Runs / Lead Board", href: "/runs", status: "View timeline" },
+  { label: "Runs", href: "/runs", status: "View timeline" },
+  { label: "Lead Board", href: "/lead-board", status: "Inspect stored leads" },
   { label: "Billing", href: "#", status: "Placeholder" },
   { label: "Settings", href: "#", status: "Placeholder" }
 ];
