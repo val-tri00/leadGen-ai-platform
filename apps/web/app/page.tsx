@@ -1,39 +1,31 @@
-import Link from "next/link";
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/app/auth/auth-provider";
+import { Card, CardContent } from "@/app/components/ui/card";
 
 export default function Home() {
-  return (
-    <main className="page">
-      <section className="intro">
-        <p className="eyebrow">LeadGen AI</p>
-        <h1>Auth shell for the local MVP.</h1>
-        <p className="lede">
-          Use the login, register, and dashboard routes to verify browser-to-gateway-to-identity auth flow.
-        </p>
-        <div className="action-row">
-          <Link className="button-link" href="/login">
-            Login
-          </Link>
-          <Link className="button-link secondary" href="/register">
-            Register
-          </Link>
-        </div>
-      </section>
+  const router = useRouter();
+  const { status } = useAuth();
 
-      <section className="service-list" aria-label="Current MVP services">
-        <article className="service-card">
-          <span>Gateway routing</span>
-          <strong>/api/auth/*</strong>
-        </article>
-        <article className="service-card">
-          <span>Session storage</span>
-          <strong>local MVP layer</strong>
-        </article>
-        <article className="service-card">
-          <span>Protected route</span>
-          <strong>/dashboard</strong>
-        </article>
-      </section>
-    </main>
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.replace("/dashboard");
+    } else if (status === "unauthenticated") {
+      router.replace("/login");
+    }
+  }, [router, status]);
+
+  return (
+    <div className="flex min-h-screen items-center justify-center px-4">
+      <Card className="w-full max-w-md">
+        <CardContent className="space-y-2 p-8 text-center">
+          <p className="text-xs uppercase tracking-[0.24em] text-primary">LeadGen AI</p>
+          <h1 className="text-xl font-semibold text-foreground">Opening your workspace</h1>
+          <p>Checking the current browser session and routing you to the right place.</p>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
-

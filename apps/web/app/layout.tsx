@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import { Navigation } from "./components/navigation";
 import "./globals.css";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: "LeadGen AI",
-  description: "AI-assisted lead generation portfolio project"
+  description: "Lead generation orchestration dashboard for the LeadGen AI MVP."
 };
 
 export default function RootLayout({
@@ -15,9 +14,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
+      <body className="min-h-screen bg-background text-foreground antialiased">
         <Providers>
-          <Navigation />
           {children}
         </Providers>
       </body>

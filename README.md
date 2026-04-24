@@ -1,8 +1,8 @@
 # LeadGen AI Portfolio
 
-LeadGen AI is a portfolio-ready monorepo for experimenting with AI-assisted lead generation workflows. The foundation includes a Next.js web app, FastAPI backend services, shared packages, Docker Compose infrastructure, PostgreSQL, Redis, and nginx.
+LeadGen AI is a portfolio-ready monorepo for experimenting with AI-assisted lead generation workflows. The current MVP includes a Next.js SaaS-style dashboard, FastAPI backend services, shared packages, Docker Compose infrastructure, PostgreSQL, Redis, and nginx.
 
-This initial version intentionally contains only health checks and placeholder screens. Business logic will be added in later milestones.
+The platform already supports auth bootstrap, protected dashboard pages, lead generation runs, async pipeline simulation, and stored lead results. Real crawling, extraction, enrichment, and billing logic will be added in later milestones.
 
 ## Planned Architecture
 
@@ -44,25 +44,32 @@ docs/                      Project documentation
 
 3. Open the local services:
 
-   - Web app: http://localhost:3000
-   - nginx: http://localhost:8080
+   - Main app through nginx: http://localhost:8080
+   - Web container directly: http://localhost:3000
    - API gateway health: http://localhost:8000/health
    - Identity service health: http://localhost:8001/health
    - Leadgen service health: http://localhost:8002/health
-   - Pipeline worker health: http://localhost:8003/health
    - Leadstore service health: http://localhost:8004/health
+
+4. Recommended browser flow:
+
+   - open `http://localhost:8080`
+   - register or log in
+   - land on `/dashboard`
+   - create a run from `/generate`
+   - inspect timeline and stored leads from `/runs/[runId]`
 
 ## Current MVP Services
 
-- `web`: Next.js app shell for the LeadGen AI experience.
-- `api-gateway`: FastAPI gateway placeholder.
-- `identity-service`: FastAPI identity placeholder.
-- `leadgen-service`: FastAPI lead generation placeholder.
-- `pipeline-worker`: FastAPI worker placeholder.
-- `leadstore-service`: FastAPI lead storage placeholder.
+- `web`: Next.js SaaS dashboard shell for auth, runs, and lead results.
+- `api-gateway`: FastAPI gateway for public `/api/...` traffic.
+- `identity-service`: FastAPI auth service for register/login/refresh/logout/me.
+- `leadgen-service`: FastAPI run owner for lead generation orchestration.
+- `pipeline-worker`: Celery worker that simulates async pipeline progression.
+- `leadstore-service`: FastAPI lead storage service for persisted extracted leads.
 - `postgres`: Primary relational database.
-- `redis`: Queue/cache dependency for future asynchronous workflows.
-- `nginx`: Local reverse proxy for the web app and service health routes.
+- `redis`: Queue/cache dependency backing Celery orchestration.
+- `nginx`: Local reverse proxy and public browser entrypoint.
 
 ## Development Notes
 
@@ -70,6 +77,7 @@ docs/                      Project documentation
 - Backend service containers expose FastAPI on port `8000` internally.
 - Host ports are mapped only for local development and health check convenience.
 - Shared packages are placeholders for future cross-service configuration and types.
+- Frontend structure and reusable UI components are documented in `docs/frontend-ui-structure.md`.
 
 ## Development Workflow
 

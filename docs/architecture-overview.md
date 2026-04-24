@@ -42,6 +42,8 @@ Auth state is intentionally lightweight in the MVP. The web app uses a React con
 
 The `/dashboard` route is protected with a client-side guard. On app load, the auth provider restores a stored session, calls `/api/auth/me`, attempts refresh when needed, and clears invalid sessions before redirecting unauthenticated users to `/login`. In a production hardening pass, this flow can move refresh tokens into HttpOnly cookies and shift more enforcement to middleware/server-side boundaries.
 
+The frontend shell and reusable page structure now live in a dedicated document at `docs/frontend-ui-structure.md`. That doc covers the App Router route groups, dashboard layout, protected route strategy, and which product pages are real versus placeholder in the current MVP.
+
 ## Lead Generation Runs
 
 `leadgen-service` owns the lead generation run domain. A run represents one user-submitted generation request with explicit criteria such as industry, offering, location, search query, and requested lead count. Keeping run creation and lifecycle state in this service gives the MVP one clear owner for orchestration decisions while downstream services can later report progress or results.
