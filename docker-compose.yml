@@ -171,9 +171,16 @@ services:
         SERVICE_PATH: services/leadstore-service
     environment:
       SERVICE_NAME: leadstore-service
+      ENVIRONMENT: local
       DATABASE_URL: postgresql://leadgen:leadgen_password@postgres:5432/leadgen
+      LEADSTORE_DATABASE_URL: postgresql+psycopg://leadgen:leadgen_password@postgres:5432/leadgen
       REDIS_URL: redis://redis:6379/0
+      LEADSTORE_ALLOW_MOCK_USER: "true"
+      LEADSTORE_MOCK_USER_ID: 00000000-0000-4000-8000-000000000001
+      LEADSTORE_MOCK_USER_EMAIL: mvp-user@example.com
+      LEADSTORE_MOCK_USER_ROLE: user
       CLOUDFLARE_R2_BUCKET: replace-with-r2-bucket
+    command: ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
     ports:
       - "8004:8000"
     depends_on:

@@ -8,8 +8,8 @@ LeadGen AI is organized as a service-oriented monorepo. The current foundation f
 - `api-gateway`: FastAPI entry point intended to coordinate backend calls.
 - `identity-service`: FastAPI service reserved for authentication and user identity.
 - `leadgen-service`: FastAPI service reserved for lead generation workflows.
-- `pipeline-worker`: FastAPI placeholder for future async pipeline execution.
-- `leadstore-service`: FastAPI service reserved for lead persistence and retrieval.
+- `pipeline-worker`: Celery worker responsible for async run processing callbacks and mocked extraction/storage flow.
+- `leadstore-service`: FastAPI service that persists structured leads and serves stored results to the product UI.
 - `postgres`: Relational data store.
 - `redis`: Cache and queue dependency.
 - `nginx`: Local reverse proxy.
@@ -52,24 +52,32 @@ The current implementation prepares the async pipeline flow without performing r
 
 For auth compatibility, `leadgen-service` reads user context from gateway-style headers such as `X-User-Id`, `X-User-Email`, and `X-User-Role`. Local development can use a controlled mock user fallback; production-like environments should disable that fallback and let the API Gateway provide verified identity context.
 
+## Lead Storage Domain
+
+`leadstore-service` owns persisted lead records. `leadgen-service` remains the run owner, but extracted business output belongs in a separate storage boundary so results can evolve independently from run orchestration. This keeps lead retrieval, future verification, exports, and CRM sync concerns out of the run lifecycle service.
+
+Each stored lead record keeps lightweight provenance fields such as `canonical_url`, `source_doc_id`, and `source_chunk_ids`. Even in the mocked MVP phase, this preserves the debugging shape the later real pipeline will need when extraction quality or source traceability matter.
+
+The current ingest path uses an internal `POST /leads/bulk` endpoint. `pipeline-worker` sends a batch tied to one `run_id`, `leadstore-service` validates the payload, skips obvious duplicates inside the same run, and persists the remaining lead rows in PostgreSQL.
+
 ## Lead Generation UI
 
 Authenticated users create runs from the web app at `/generate`. The form submits generation criteria through the gateway-relative `/api/runs` route, including the current MVP user context headers so `leadgen-service` can associate the run with the signed-in user while gateway-level auth enforcement is still evolving.
 
-The `/runs` page lists available runs newest first, and `/runs/{runId}` shows the run summary plus the persisted event timeline. The timeline reflects backend orchestration events stored by `leadgen-service`, including creation, queueing, pipeline updates, and failure messages when available.
+The `/runs` page lists available runs newest first, `/runs/{runId}` shows the run summary plus the persisted event timeline, and `/lead-board` surfaces stored lead results. Run details now include both the orchestration timeline and the lead rows saved for that run once storage finishes.
 
-Run details currently use lightweight polling every few seconds and stop once the run reaches a terminal status such as `done` or `failed`. This gives local MVP users a visible browser flow from run submission to backend status updates without adding realtime infrastructure yet.
+Run details currently use lightweight polling every few seconds and stop once the run reaches a terminal status such as `done` or `failed`. This gives local MVP users a visible browser flow from run submission to backend status updates and stored results without adding realtime infrastructure yet.
 
 ## Async Pipeline Orchestration
 
 Run processing is asynchronous. After `leadgen-service` persists a run and moves it to `queued`, it publishes a Celery task named `pipeline.process_run` to the `pipeline.run` Redis-backed queue. The task payload includes the run ID, user identity context, correlation ID, enqueue timestamp, and a compact summary of the generation input.
 
-`pipeline-worker` consumes the `pipeline.run` queue and simulates the future processing lifecycle in deterministic order: `crawling`, `cleaning`, `embedding`, `extracting`, `storing`, `verifying`, and `done`. Each step sends an internal callback to `leadgen-service` with `PATCH /runs/{run_id}/status` using Docker service DNS (`http://leadgen-service:8000`) rather than host-local addresses.
+`pipeline-worker` consumes the `pipeline.run` queue and simulates the future processing lifecycle in deterministic order: `crawling`, `cleaning`, `embedding`, `extracting`, `storing`, `verifying`, and `done`. During `extracting`, it prepares deterministic mocked lead payloads. During `storing`, it sends those structured leads to `leadstore-service` with `POST /leads/bulk`, then continues the run lifecycle only after persistence succeeds.
 
-Callback-based updates keep `leadgen-service` as the run owner while allowing the worker to execute slow processing independently. Every accepted callback creates a run event, so querying `/runs/{run_id}/events` shows the visible timeline from creation through completion. The worker can simulate local failure with `PIPELINE_SIMULATE_FAIL_STEP`, which reports `failed` and records the failed step in event metadata.
+Callback-based updates keep `leadgen-service` as the run owner while allowing the worker to execute slow processing independently. Every accepted callback creates a run event, so querying `/runs/{run_id}/events` shows the visible timeline from creation through completion. Stored results are then retrieved separately from `leadstore-service` through the gateway. The worker can simulate local failure with `PIPELINE_SIMULATE_FAIL_STEP`, which reports `failed` and records the failed step in event metadata.
 
 `pipeline-worker` now runs as a Celery worker instead of an HTTP API. Its Docker readiness check uses Celery inspect against Redis, while `leadgen-service` keeps the HTTP health endpoint and depends on Redis for publishing queue messages.
 
 ## Current Scope
 
-The current milestone adds the identity foundation, frontend auth shell, lead generation run foundation, placeholder async pipeline orchestration, and lead generation run UI. Broader product workflows, real crawling, R2 raw content, chunking, embeddings, lead extraction, lead storage, email verification, OAuth providers, pgvector storage, billing provider integration, and gateway-level auth enforcement are intentionally deferred.
+The current milestone adds the identity foundation, frontend auth shell, lead generation run foundation, placeholder async pipeline orchestration, mocked lead storage, and UI surfaces for both run timelines and stored lead results. Real crawling, R2 raw content, chunking, embeddings, LLM extraction, email verification, richer scoring, exports, CRM sync, OAuth providers, pgvector storage, billing provider integration, and gateway-level auth enforcement are intentionally deferred.

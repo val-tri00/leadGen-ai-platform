@@ -7,6 +7,7 @@ from fastapi import FastAPI, Request, Response
 SERVICE_NAME = os.getenv("SERVICE_NAME", "api-gateway")
 IDENTITY_SERVICE_URL = os.getenv("IDENTITY_SERVICE_URL", "http://identity-service:8000")
 LEADGEN_SERVICE_URL = os.getenv("LEADGEN_SERVICE_URL", "http://leadgen-service:8000")
+LEADSTORE_SERVICE_URL = os.getenv("LEADSTORE_SERVICE_URL", "http://leadstore-service:8000")
 
 app = FastAPI(
     title="LeadGen API Gateway",
@@ -34,6 +35,25 @@ def api_status() -> dict[str, str]:
 )
 async def proxy_auth(path: str, request: Request) -> Response:
     return await proxy_request(request, f"{IDENTITY_SERVICE_URL}/auth/{path}")
+
+
+@app.api_route(
+    "/api/runs/{run_id}/leads",
+    methods=["GET", "OPTIONS"],
+)
+async def proxy_run_leads(run_id: str, request: Request) -> Response:
+    return await proxy_request(request, f"{LEADSTORE_SERVICE_URL}/runs/{run_id}/leads")
+
+
+@app.api_route("/api/leads", methods=["GET", "OPTIONS"])
+@app.api_route(
+    "/api/leads/{path:path}",
+    methods=["GET", "OPTIONS"],
+)
+async def proxy_leads(request: Request, path: str = "") -> Response:
+    suffix = f"/{path}" if path else ""
+    target_url = f"{LEADSTORE_SERVICE_URL}/leads{suffix}"
+    return await proxy_request(request, target_url)
 
 
 @app.api_route("/api/runs", methods=["GET", "POST", "OPTIONS"])
@@ -66,7 +86,7 @@ async def proxy_request(request: Request, target_url: str) -> Response:
     response_headers: dict[str, Any] = {
         key: value
         for key, value in upstream_response.headers.items()
-        if key.lower() not in {"content-encoding", "transfer-encoding", "connection"}
+        if key.lower() not in {"content-encoding", "transfer-encoding", "connection", "date", "server"}
     }
     return Response(
         content=upstream_response.content,
